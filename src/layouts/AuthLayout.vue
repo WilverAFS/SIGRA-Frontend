@@ -1,6 +1,6 @@
 <template>
   <main class="auth-layout">
-    <router-view />
+    <slot />
   </main>
 </template>
 

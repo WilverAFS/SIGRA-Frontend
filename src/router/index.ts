@@ -8,25 +8,27 @@ import type { RouteRecordRaw } from 'vue-router';
 import ForbiddenView from '@/views/errors/ForbiddenView.vue';
 import { useAuthStore } from '@/stores/auth';
 import { createPinia } from 'pinia';
+import AuthLayout from '@/layouts/AuthLayout.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
 
 const pinia = createPinia();
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/login', name: 'Login',
-    component: LoginView, meta: { requiresAuth: false, },
+    component: LoginView, meta: { requiresAuth: false, layout: AuthLayout,},
   },
   {
     path: '/', name: 'Dashboard',
-    component: DashboardView, meta: { requiresAuth: true, roles: [UserRole.ADMIN, UserRole.DOCENTE, UserRole.ESTUDIANTE,], },
+    component: DashboardView, meta: { requiresAuth: true, layout: AppLayout, roles: [UserRole.ADMIN, UserRole.DOCENTE, UserRole.ESTUDIANTE,], },
   },
   {
     path: '/health', name: 'HealthCheck',
-    component: HealthCheckView, meta: { requiresAuth: false, },
+    component: HealthCheckView, meta: { requiresAuth: false, layout: AppLayout,},
   },
   {
     path: '/403', name: 'Forbidden',
-    component: ForbiddenView, meta: { requiresAuth: false, },
+    component: ForbiddenView, meta: { requiresAuth: false, layout: AppLayout,},
   },
 ];
 

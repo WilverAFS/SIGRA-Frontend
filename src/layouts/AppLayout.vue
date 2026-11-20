@@ -11,7 +11,7 @@ import AppFooter from '@/components/layout/AppFooter.vue';
     <AppNavbar />
 
     <main>
-      <router-view />
+      <slot />
     </main>
 
     <AppFooter />
