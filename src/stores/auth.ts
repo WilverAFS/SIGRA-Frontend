@@ -1,7 +1,9 @@
+// src/stores/auth.ts
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import api from '@/services/api';
 import type { UserProfile, LoginCredentials, AuthResponse } from '@/types/auth';
+import { UserRole } from '@/types/roles';
 
 const TOKEN_KEY = 'sigra_token';
 const USER_KEY = 'sigra_user';
@@ -22,9 +24,9 @@ export const useAuthStore = defineStore('auth', () => {
   const fullName = computed<string>(() =>
     user.value ? `${user.value.firstName} ${user.value.lastName}` : ''
   );
-  const isAdmin = computed<boolean>(() => user.value?.role === 'ADMIN');
-  const isTeacher = computed<boolean>(() => user.value?.role === 'DOCENTE');
-  const isStudent = computed<boolean>(() => user.value?.role === 'ESTUDIANTE');
+  const isAdmin = computed<boolean>(() => user.value?.role === UserRole.ADMIN);
+  const isTeacher = computed<boolean>(() => user.value?.role === UserRole.DOCENTE);
+  const isStudent = computed<boolean>(() => user.value?.role === UserRole.ESTUDIANTE);
 
   // Acciones
   function setSession(newToken: string, newUser: UserProfile) {
