@@ -1,0 +1,21 @@
+:root {
+  --color-primary: #31456e;
+  --color-primary-hover: #243758;
+
+  --color-success: #16a34a;
+  --color-danger: #dc2626;
+  --color-warning: #f59e0b;
+
+  --color-text: #111827;
+  --color-text-secondary: #6b7280;
+
+  --color-border: #d1d5db;
+  --color-background: #f8fafc;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  --shadow-md:
+    0 4px 10px rgb(0 0 0 / 10%);
+}

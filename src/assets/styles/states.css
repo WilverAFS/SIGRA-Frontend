@@ -1,0 +1,10 @@
+.loading-state,
+.empty-state,
+.error-state {
+  padding: 2rem;
+  text-align: center;
+}
+
+.error-state {
+  color: var(--color-danger);
+}
