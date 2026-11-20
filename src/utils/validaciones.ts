@@ -7,7 +7,7 @@ export function requerido(value: string): ValidationResult {
 }
 
 export function soloLetras(value: string): ValidationResult {
-    const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+    const regex = /^[A-Za-zÁÉÍÓÚáéíóúÜüÑñ\s]+$/;
 
     return regex.test(value) ? null : 'Solo se permiten letras.';
 }
