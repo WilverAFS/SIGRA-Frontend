@@ -1,7 +1,16 @@
+// src/services/api.ts
 import axios from 'axios';
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
+if (!apiUrl) {
+  throw new Error(
+    'La variable VITE_API_URL es obligatoria.'
+  );
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1', // Prefijo oficial del ContratoAPI-SIGRA
+  baseURL: apiUrl,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -24,10 +33,8 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('sigra_token');
       localStorage.removeItem('sigra_user');
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
-      }
     }
+
     return Promise.reject(error);
   }
 );
