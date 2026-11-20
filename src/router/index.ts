@@ -7,11 +7,8 @@ import { UserRole } from '@/types/roles';
 import type { RouteRecordRaw } from 'vue-router';
 import ForbiddenView from '@/views/errors/ForbiddenView.vue';
 import { useAuthStore } from '@/stores/auth';
-import { createPinia } from 'pinia';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-
-const pinia = createPinia();
 
 const routes: RouteRecordRaw[] = [
   {
@@ -35,7 +32,7 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({ history: createWebHistory(), routes, });
 
 router.beforeEach((to) => {
-  const authStore = useAuthStore(pinia);
+  const authStore = useAuthStore();
   const isAuthenticated = authStore.isAuthenticated;
   const requiresAuth = to.meta.requiresAuth ?? false;
   const allowedRoles = to.meta.roles;
