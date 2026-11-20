@@ -5,36 +5,24 @@ import DashboardView from '@/views/DashboardView.vue';
 import HealthCheckView from '@/views/HealthCheckView.vue';
 import { UserRole } from '@/types/roles';
 import type { RouteRecordRaw } from 'vue-router';
+import ForbiddenView from '@/views/errors/ForbiddenView.vue';
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/login',
-    name: 'Login',
-    component: LoginView,
-    meta: {
-      requiresAuth: false,
-    },
+    path: '/login', name: 'Login',
+    component: LoginView, meta: { requiresAuth: false, },
   },
   {
-    path: '/',
-    name: 'Dashboard',
-    component: DashboardView,
-    meta: {
-      requiresAuth: true,
-      roles: [
-        UserRole.ADMIN,
-        UserRole.DOCENTE,
-        UserRole.ESTUDIANTE,
-      ],
-    },
+    path: '/', name: 'Dashboard',
+    component: DashboardView, meta: { requiresAuth: true, roles: [UserRole.ADMIN, UserRole.DOCENTE, UserRole.ESTUDIANTE,], },
   },
   {
-    path: '/health',
-    name: 'HealthCheck',
-    component: HealthCheckView, // Ruta de diagnóstico
-    meta: {
-      requiresAuth: false,
-    },
+    path: '/health', name: 'HealthCheck',
+    component: HealthCheckView, meta: { requiresAuth: false, },
+  },
+  {
+    path: '/403', name: 'Forbidden',
+    component: ForbiddenView, meta: { requiresAuth: false, },
   },
 ];
 
