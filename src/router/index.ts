@@ -6,6 +6,10 @@ import HealthCheckView from '@/views/HealthCheckView.vue';
 import { UserRole } from '@/types/roles';
 import type { RouteRecordRaw } from 'vue-router';
 import ForbiddenView from '@/views/errors/ForbiddenView.vue';
+import { useAuthStore } from '@/stores/auth';
+import { createPinia } from 'pinia';
+
+const pinia = createPinia();
 
 const routes: RouteRecordRaw[] = [
   {
@@ -26,9 +30,24 @@ const routes: RouteRecordRaw[] = [
   },
 ];
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes,
+const router = createRouter({ history: createWebHistory(), routes, });
+
+router.beforeEach((to) => {
+  const authStore = useAuthStore(pinia);
+  const isAuthenticated = authStore.isAuthenticated;
+  const requiresAuth = to.meta.requiresAuth ?? false;
+  const allowedRoles = to.meta.roles;
+
+  // Ruta protegida sin sesión
+  if (requiresAuth && !authStore.isAuthenticated) { return '/login'; }
+
+  // Usuario autenticado intentando volver al login
+  if (to.path === '/login' && isAuthenticated) { return '/'; }
+
+  // Validación de roles
+  if (requiresAuth && allowedRoles && authStore.user && !allowedRoles.includes(authStore.user.role)) { return '/403'; }
+
+  return true;
 });
 
 export default router;

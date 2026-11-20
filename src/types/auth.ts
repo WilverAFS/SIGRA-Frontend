@@ -1,4 +1,5 @@
-export type RoleName = 'ADMIN' | 'DOCENTE' | 'ESTUDIANTE';
+// src/types/auth.ts
+import type { UserRole } from './roles';
 
 export interface UserProfile {
   id: number;
@@ -6,7 +7,7 @@ export interface UserProfile {
   firstName: string;
   lastName: string;
   email: string;
-  role: RoleName;
+  role: UserRole;
   instituteId: number;
   careerId: number | null;
   isActive: boolean;
