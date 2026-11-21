@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 import PaginationBar
-  from '@/components/ui/Paginacion.vue';
+  from '@/components/ui/PaginationBar.vue';
 
 describe('PaginationBar', () => {
 

@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 import DataTable
-  from '@/components/ui/Tabla.vue';
+  from '@/components/ui/DataTable.vue';
 
 describe('DataTable', () => {
 

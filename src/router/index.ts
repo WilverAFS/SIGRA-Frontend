@@ -76,6 +76,16 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/admin/institutos',
+    name: 'AdminInstitutos',
+    component: () => import('@/views/admin/InstitutosView.vue'),
+    meta: {
+      requiresAuth: true,
+      layout: AppLayout,
+      roles: [UserRole.ADMIN],
+    },
+  },
+  {
     path: '/health',
     name: 'HealthCheck',
     component: HealthCheckView,

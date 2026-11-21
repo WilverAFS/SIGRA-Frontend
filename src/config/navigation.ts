@@ -35,7 +35,7 @@ export const adminNavigation: NavigationItem[] = [
   {
     label: 'Institutos',
     route: '/admin/institutos',
-    enabled: false,
+    enabled: true,
   },
   {
     label: 'Carreras',

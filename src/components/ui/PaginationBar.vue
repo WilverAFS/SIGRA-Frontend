@@ -10,25 +10,25 @@ defineProps<{
 
 <template>
   <nav
-    class="paginacion"
+    class="pagination"
     aria-label="Paginación"
   >
     <button
       type="button"
-      class="paginacion-button"
+      class="pagination-button"
       :disabled="page <= 1"
       @click="page = page - 1"
     >
       Anterior
     </button>
 
-    <span class="paginacion-info">
+    <span class="pagination-info">
       Página {{ page }} de {{ totalPages }}
     </span>
 
     <button
       type="button"
-      class="paginacion-button"
+      class="pagination-button"
       :disabled="page >= totalPages"
       @click="page = page + 1"
     >
