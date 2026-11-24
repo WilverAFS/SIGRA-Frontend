@@ -1,4 +1,3 @@
-// src/services/api.ts
 import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -16,23 +15,39 @@ const api = axios.create({
   },
 });
 
-// Interceptor para inyectar automáticamente el token JWT cuando esté disponible
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('sigra_token');
-  if (token && config.headers) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('sigra_token');
+
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('sigra_token');
-      localStorage.removeItem('sigra_user');
+    const status = error.response?.status;
+    const url = error.config?.url ?? '';
+
+    const publicAuthEndpoints = [
+      '/auth/login',
+      '/auth/register',
+      '/auth/refresh',
+    ];
+
+    const isPublicAuthRequest = publicAuthEndpoints.some(
+      (endpoint) => url.includes(endpoint)
+    );
+
+    if (status === 401 && !isPublicAuthRequest) {
+      window.dispatchEvent(
+        new Event('sigra:session-expired')
+      );
     }
 
     return Promise.reject(error);

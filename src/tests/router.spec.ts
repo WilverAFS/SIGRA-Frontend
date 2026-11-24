@@ -118,3 +118,50 @@ describe('Protección de rutas', () => {
     expect(router.currentRoute.value.path).toBe('/health');
   });
 });
+
+describe('Rutas de autenticación y perfil', () => {
+  beforeEach(async () => {
+    mockAuthStore.isAuthenticated = false;
+    mockAuthStore.user = null;
+    await router.push('/health');
+  });
+
+  test('permite abrir el registro sin iniciar sesión', async () => {
+    await router.push('/registro');
+
+    expect(router.currentRoute.value.path).toBe('/registro');
+  });
+
+  test('redirige al login si no hay sesión y se intenta abrir el perfil', async () => {
+    await router.push('/perfil');
+
+    expect(router.currentRoute.value.path).toBe('/login');
+  });
+
+  test('redirige al login si no hay sesión y se intenta cambiar la contraseña', async () => {
+    await router.push('/cambiar-password');
+
+    expect(router.currentRoute.value.path).toBe('/login');
+  });
+
+  test.each([
+    '/perfil',
+    '/cambiar-password',
+  ])('permite acceder a %s con sesión activa', async (path) => {
+    mockAuthStore.isAuthenticated = true;
+    mockAuthStore.user = { role: UserRole.ESTUDIANTE };
+
+    await router.push(path);
+
+    expect(router.currentRoute.value.path).toBe(path);
+  });
+
+  test('redirige al Dashboard si un usuario autenticado intenta abrir el registro', async () => {
+    mockAuthStore.isAuthenticated = true;
+    mockAuthStore.user = { role: UserRole.ESTUDIANTE };
+
+    await router.push('/registro');
+
+    expect(router.currentRoute.value.path).toBe('/');
+  });
+});

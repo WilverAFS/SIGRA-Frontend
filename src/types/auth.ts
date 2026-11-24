@@ -1,4 +1,3 @@
-// src/types/auth.ts
 import type { UserRole } from './roles';
 
 export interface UserProfile {
@@ -18,12 +17,47 @@ export interface LoginCredentials {
   password: string;
 }
 
+export interface RegisterData {
+  institutionalId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  role: Extract<UserRole, 'DOCENTE' | 'ESTUDIANTE'>;
+  instituteId: number;
+  careerId: number | null;
+}
+
+export interface ChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
+  newPasswordConfirmation: string;
+}
+
+export interface AuthData {
+  user: UserProfile;
+  accessToken: string;
+  refreshToken?: string;
+}
+
 export interface AuthResponse {
+  success: boolean;
+  message: string;
+  data: AuthData;
+}
+
+export interface RegisterResponse {
   success: boolean;
   message: string;
   data: {
     user: UserProfile;
-    accessToken: string;
+    accessToken?: string;
     refreshToken?: string;
   };
+}
+
+export interface ProfileResponse {
+  success: boolean;
+  message: string;
+  data: UserProfile;
 }
