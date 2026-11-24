@@ -32,12 +32,12 @@ async function logout() {
 </script>
 
 <template>
-  <nav class="navbar">
+  <nav class="navbar" aria-label="Navegación principal">
     <RouterLink v-for="item in menuItems" :key="item.route" :to="item.route" class="nav-link">
       {{ item.label }}
     </RouterLink>
 
-    <button v-if="authStore.isAuthenticated" class="logout-button" @click="logout">
+    <button v-if="authStore.isAuthenticated" type="button" class="logout-button" @click="logout">
       Cerrar sesión
     </button>
   </nav>
@@ -54,6 +54,17 @@ async function logout() {
 
 .nav-link {
   text-decoration: none;
+  border-radius: 0.25rem;
+}
+
+.nav-link:focus-visible,
+.logout-button:focus-visible {
+  outline: 3px solid var(--color-primary, #2563eb);
+  outline-offset: 3px;
+}
+
+.nav-link.router-link-active {
+  font-weight: 700;
 }
 
 .logout-button {
