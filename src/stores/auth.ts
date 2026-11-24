@@ -35,10 +35,22 @@ function getErrorMessage(error: any): string {
 
 function getFieldErrors(error: any): FieldErrors {
   const data = error.response?.data;
+  const details = data?.error?.details;
+
+  if (Array.isArray(details)) {
+    return Object.fromEntries(
+      details
+        .filter((item: any) => item?.field && item?.message)
+        .map((item: any) => [
+          String(item.field),
+          String(item.message),
+        ])
+    );
+  }
 
   const validationErrors =
     data?.errors
-    ?? data?.error?.details
+    ?? details
     ?? data?.data?.errors
     ?? {};
 
@@ -199,8 +211,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function logout() {
     try {
-      if (token.value) {
-        await authService.logout();
+      if (token.value || refreshToken.value) {
+        await authService.logout(refreshToken.value ?? undefined);
       }
     } catch {
       // La sesión local se elimina aunque falle el servidor.

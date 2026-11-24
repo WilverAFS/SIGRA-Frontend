@@ -25,7 +25,7 @@ export interface RegisterData {
   password: string;
   role: Extract<UserRole, 'DOCENTE' | 'ESTUDIANTE'>;
   instituteId: number;
-  careerId: number | null;
+  careerId: number;
 }
 
 export interface ChangePasswordData {

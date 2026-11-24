@@ -27,5 +27,4 @@ window.addEventListener('sigra:session-expired', () => {
 });
 
 app.use(router);
-
 app.mount('#app');

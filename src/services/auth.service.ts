@@ -14,27 +14,24 @@ export const AUTH_ENDPOINTS = {
   login: '/auth/login',
   logout: '/auth/logout',
   refresh: '/auth/refresh',
-  me: '/me',
-  changePassword: '/auth/change-password',
+  me: '/auth/me',
+  changePassword: '/auth/me/password',
 } as const;
 
 export const authService = {
   register(data: RegisterData) {
-    return api.post<RegisterResponse>(
-      AUTH_ENDPOINTS.register,
-      data
-    );
+    return api.post<RegisterResponse>(AUTH_ENDPOINTS.register, data);
   },
 
   login(credentials: LoginCredentials) {
-    return api.post<AuthResponse>(
-      AUTH_ENDPOINTS.login,
-      credentials
-    );
+    return api.post<AuthResponse>(AUTH_ENDPOINTS.login, credentials);
   },
 
-  logout() {
-    return api.post(AUTH_ENDPOINTS.logout);
+  logout(refreshToken?: string) {
+    return api.post(
+      AUTH_ENDPOINTS.logout,
+      refreshToken ? { refreshToken } : {}
+    );
   },
 
   refresh(refreshToken?: string) {
@@ -49,9 +46,6 @@ export const authService = {
   },
 
   changePassword(data: ChangePasswordData) {
-    return api.patch(
-      AUTH_ENDPOINTS.changePassword,
-      data
-    );
+    return api.patch(AUTH_ENDPOINTS.changePassword, data);
   },
 };

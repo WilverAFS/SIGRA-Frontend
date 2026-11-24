@@ -60,9 +60,11 @@ function validarFormulario(): boolean {
   errors.instituteId = requerido(String(form.instituteId))
     ?? soloNumeros(String(form.instituteId))
     ?? '';
-  errors.careerId = form.careerId
-    ? soloNumeros(String(form.careerId)) ?? ''
-    : '';
+  errors.careerId = requerido(String(form.careerId))
+    ?? soloNumeros(String(form.careerId))
+    ?? (Number.isInteger(Number(form.careerId)) && Number(form.careerId) > 0
+      ? ''
+      : 'El ID de carrera debe ser un entero positivo.');
 
   return !Object.values(errors).some(Boolean);
 }
@@ -102,7 +104,7 @@ async function submit() {
     password: form.password,
     role: form.role,
     instituteId: Number(form.instituteId),
-    careerId: form.careerId ? Number(form.careerId) : null,
+    careerId: Number(form.careerId),
   });
 
   if (result === 'active') {
@@ -222,7 +224,8 @@ async function submit() {
             v-model="form.careerId"
             label="ID de carrera"
             type="number"
-            placeholder="Opcional"
+            placeholder="Ingresa el ID de tu carrera"
+            required
             :error="errors.careerId"
           />
         </div>

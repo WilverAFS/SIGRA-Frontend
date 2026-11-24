@@ -48,7 +48,7 @@ const registration = {
   password: 'Password123!',
   role: UserRole.ESTUDIANTE,
   instituteId: 1,
-  careerId: null,
+  careerId: 1,
 };
 
 describe('Store de autenticación', () => {
@@ -159,6 +159,31 @@ describe('Store de autenticación', () => {
 
     expect(authStore.validationErrors.email).toBe('El correo no es válido.');
     expect(authStore.validationErrors.password).toBe('La contraseña es incorrecta.');
+  });
+
+  test('interpreta los errores 422 del backend en formato details', async () => {
+    mockAuthService.register.mockRejectedValue({
+      response: {
+        status: 422,
+        data: {
+          message: 'Datos inválidos',
+          error: {
+            code: 'VALIDATION_ERROR',
+            details: [
+              { field: 'email', message: 'El correo no es válido.' },
+              { field: 'careerId', message: 'La carrera es obligatoria.' },
+            ],
+          },
+        },
+      },
+    });
+
+    const authStore = useAuthStore();
+    const result = await authStore.register(registration);
+
+    expect(result).toBe('error');
+    expect(authStore.validationErrors.email).toBe('El correo no es válido.');
+    expect(authStore.validationErrors.careerId).toBe('La carrera es obligatoria.');
   });
 
   test('registra un estudiante activo e inicia su sesión', async () => {
@@ -297,10 +322,11 @@ describe('Store de autenticación', () => {
     mockAuthService.logout.mockRejectedValue(new Error('Error de conexión'));
 
     const authStore = useAuthStore();
-    authStore.setSession('token-prueba', testUser);
+    authStore.setSession('token-prueba', testUser, 'refresh-para-revocar');
 
     await authStore.logout();
 
+    expect(mockAuthService.logout).toHaveBeenCalledWith('refresh-para-revocar');
     expect(mockAuthService.logout).toHaveBeenCalledOnce();
     expect(authStore.isAuthenticated).toBe(false);
     expect(localStorage.getItem('sigra_token')).toBeNull();

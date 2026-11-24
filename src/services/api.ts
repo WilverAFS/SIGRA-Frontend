@@ -1,11 +1,11 @@
-import axios from 'axios';
+import axios, {
+  type InternalAxiosRequestConfig,
+} from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 if (!apiUrl) {
-  throw new Error(
-    'La variable VITE_API_URL es obligatoria.'
-  );
+  throw new Error('La variable VITE_API_URL es obligatoria.');
 }
 
 const api = axios.create({
@@ -14,6 +14,8 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+let refreshPromise: Promise<boolean> | null = null;
 
 api.interceptors.request.use(
   (config) => {
@@ -30,9 +32,13 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     const status = error.response?.status;
-    const url = error.config?.url ?? '';
+    const originalRequest = error.config as
+      | (InternalAxiosRequestConfig & { _retry?: boolean })
+      | undefined;
+
+    const url = originalRequest?.url ?? '';
 
     const publicAuthEndpoints = [
       '/auth/login',
@@ -44,13 +50,49 @@ api.interceptors.response.use(
       (endpoint) => url.includes(endpoint)
     );
 
-    if (status === 401 && !isPublicAuthRequest) {
-      window.dispatchEvent(
-        new Event('sigra:session-expired')
-      );
+    if (
+      status !== 401
+      || !originalRequest
+      || originalRequest._retry
+      || isPublicAuthRequest
+    ) {
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    originalRequest._retry = true;
+
+    try {
+      if (!refreshPromise) {
+        refreshPromise = import('@/stores/auth')
+          .then(({ useAuthStore }) => {
+            return useAuthStore().refreshSession();
+          })
+          .finally(() => {
+            refreshPromise = null;
+          });
+      }
+
+      const refreshed = await refreshPromise;
+
+      if (!refreshed) {
+        window.dispatchEvent(new Event('sigra:session-expired'));
+        return Promise.reject(error);
+      }
+
+      const newToken = localStorage.getItem('sigra_token');
+
+      if (!newToken) {
+        window.dispatchEvent(new Event('sigra:session-expired'));
+        return Promise.reject(error);
+      }
+
+      originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
+      return api(originalRequest);
+    } catch (refreshError) {
+      window.dispatchEvent(new Event('sigra:session-expired'));
+      return Promise.reject(refreshError);
+    }
   }
 );
 
