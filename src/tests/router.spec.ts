@@ -7,6 +7,13 @@ const mockAuthStore = vi.hoisted(() => ({
   user: null as { role: string } | null,
 }));
 
+vi.mock('@/services/api', () => ({
+  default: {
+    get: vi.fn(),
+    post: vi.fn(),
+  },
+}));
+
 vi.mock('@/stores/auth', () => ({
   useAuthStore: () => mockAuthStore,
 }));
@@ -73,6 +80,34 @@ describe('Protección de rutas', () => {
     mockAuthStore.user = { role: UserRole.ESTUDIANTE };
 
     await router.push('/__admin-test');
+
+    expect(router.currentRoute.value.path).toBe('/403');
+  });
+
+
+  test('redirige al login si un usuario sin sesión intenta abrir Auditoría', async () => {
+    await router.push('/admin/auditoria');
+
+    expect(router.currentRoute.value.path).toBe('/login');
+  });
+
+  test('permite entrar a Auditoría con el rol ADMIN', async () => {
+    mockAuthStore.isAuthenticated = true;
+    mockAuthStore.user = { role: UserRole.ADMIN };
+
+    await router.push('/admin/auditoria');
+
+    expect(router.currentRoute.value.path).toBe('/admin/auditoria');
+  });
+
+  test.each([
+    UserRole.DOCENTE,
+    UserRole.ESTUDIANTE,
+  ])('bloquea Auditoría para el rol %s', async (role) => {
+    mockAuthStore.isAuthenticated = true;
+    mockAuthStore.user = { role };
+
+    await router.push('/admin/auditoria');
 
     expect(router.currentRoute.value.path).toBe('/403');
   });

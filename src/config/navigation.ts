@@ -52,7 +52,7 @@ export const adminNavigation: NavigationItem[] = [
   {
     label: 'Auditoría',
     route: '/admin/auditoria',
-    enabled: false,
+    enabled: true,
   },
 ];
 
