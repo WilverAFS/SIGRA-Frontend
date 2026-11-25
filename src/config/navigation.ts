@@ -50,6 +50,10 @@ export const adminNavigation: NavigationItem[] = [
     enabled: false,
   },
   {
+    label: 'Materiales',
+    route: '/materiales',
+  },
+  {
     label: 'Auditoría',
     route: '/admin/auditoria',
     enabled: true,
@@ -68,7 +72,6 @@ export const teacherNavigation: NavigationItem[] = [
   {
     label: 'Materiales',
     route: '/materiales',
-    enabled: false,
   },
 ];
 
@@ -78,7 +81,6 @@ export const studentNavigation: NavigationItem[] = [
   {
     label: 'Materiales',
     route: '/materiales',
-    enabled: false,
   },
 ];
 

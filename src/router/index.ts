@@ -15,6 +15,9 @@ import { useAuthStore } from '@/stores/auth';
 
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import MaterialsView from '@/views/materials/MaterialsView.vue';
+import MaterialDetailView from '@/views/materials/MaterialDetailView.vue';
+import MaterialFormView from '@/views/materials/MaterialFormView.vue';
 
 const allRoles = [
   UserRole.ADMIN,
@@ -34,6 +37,31 @@ const routes: RouteRecordRaw[] = [
     name: 'Register',
     component: RegisterView,
     meta: { requiresAuth: false, layout: AuthLayout },
+  },
+  // Materiales y versiones (6.8): catálogo para todos; alta y edición para DOCENTE y ADMIN
+  {
+    path: '/materiales',
+    name: 'Materials',
+    component: MaterialsView,
+    meta: { requiresAuth: true, layout: AppLayout, roles: allRoles },
+  },
+  {
+    path: '/materiales/nuevo',
+    name: 'MaterialCreate',
+    component: MaterialFormView,
+    meta: { requiresAuth: true, layout: AppLayout, roles: [UserRole.ADMIN, UserRole.DOCENTE] },
+  },
+  {
+    path: '/materiales/:id(\\d+)',
+    name: 'MaterialDetail',
+    component: MaterialDetailView,
+    meta: { requiresAuth: true, layout: AppLayout, roles: allRoles },
+  },
+  {
+    path: '/materiales/:id(\\d+)/editar',
+    name: 'MaterialEdit',
+    component: MaterialFormView,
+    meta: { requiresAuth: true, layout: AppLayout, roles: [UserRole.ADMIN, UserRole.DOCENTE] },
   },
   {
     path: '/',
