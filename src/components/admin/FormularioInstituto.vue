@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue';
+import { computed, reactive, watch } from 'vue';
 import BaseInput from '@/components/forms/BaseInput.vue';
-import { requerido, soloLetras, longitudMaxima } from '@/utils/validaciones';
-import { getFieldError } from '@/utils/error-handler';
+import { requerido, longitudMaxima } from '@/utils/validaciones';
+import { obtenerErroresPorCampo } from '@/utils/errores-api';
 import type { Instituto, InstitutoPayload } from '@/types/institutos';
 
 type Validador = (valor: string) => string | null;
@@ -43,8 +43,8 @@ const reglas: Record<Campo, Validador[]> = {
   code: [requerido, (v) => longitudMaxima(v, 30)],
   name: [requerido, (v) => longitudMaxima(v, 180)],
   shortName: [requerido, (v) => longitudMaxima(v, 30)],
-  city: [requerido, soloLetras, (v) => longitudMaxima(v, 100)],
-  state: [requerido, soloLetras, (v) => longitudMaxima(v, 100)],
+  city: [requerido, (v) => longitudMaxima(v, 100)],
+  state: [requerido, (v) => longitudMaxima(v, 100)],
 };
 
 watch(
@@ -84,8 +84,12 @@ function validarTodo(): boolean {
   return valido;
 }
 
+const erroresApi = computed(() =>
+  props.errorApi ? obtenerErroresPorCampo(props.errorApi) : {}
+);
+
 function errorDe(campo: Campo): string | null {
-  return errores[campo] ?? (props.errorApi ? getFieldError(props.errorApi, campo) : null);
+  return errores[campo] ?? erroresApi.value[campo] ?? null;
 }
 
 function enviar() {

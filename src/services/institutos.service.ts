@@ -21,8 +21,8 @@ export const institutosService = {
     return api.post<RespuestaElemento<Instituto>>('/institutes', payload);
   },
 
-  actualizar(id: number, payload: InstitutoPayload) {
-    return api.put<RespuestaElemento<Instituto>>(`/institutes/${id}`, payload);
+    actualizar(id: number, payload: Partial<InstitutoPayload>) {
+    return api.patch<RespuestaElemento<Instituto>>(`/institutes/${id}`, payload);
   },
 
   eliminar(id: number) {

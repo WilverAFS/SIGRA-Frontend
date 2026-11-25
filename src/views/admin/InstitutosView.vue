@@ -108,8 +108,20 @@ async function guardar(payload: InstitutoPayload) {
   mensajeErrorGuardado.value = null;
 
   try {
-    if (institutoEditando.value) {
-      await institutosService.actualizar(institutoEditando.value.id, payload);
+        if (institutoEditando.value) {
+      const original = institutoEditando.value;
+      const cambios: Partial<InstitutoPayload> = {};
+
+      for (const clave of Object.keys(payload) as (keyof InstitutoPayload)[]) {
+        if (payload[clave] !== original[clave]) {
+          (cambios as Record<string, unknown>)[clave] = payload[clave];
+        }
+      }
+
+      if (Object.keys(cambios).length > 0) {
+        await institutosService.actualizar(original.id, cambios);
+      }
+
       mensajeExito.value = 'Instituto actualizado correctamente.';
     } else {
       await institutosService.crear(payload);
