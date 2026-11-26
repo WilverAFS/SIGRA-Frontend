@@ -32,6 +32,11 @@ export const adminNavigation: NavigationItem[] = [
     route: '/admin/usuarios',
     enabled: false,
   },
+    {
+    label: 'Roles',
+    route: '/admin/roles',
+    enabled: true,
+  },
   {
     label: 'Institutos',
     route: '/admin/institutos',

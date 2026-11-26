@@ -29,6 +29,7 @@ const routes: RouteRecordRaw[] = [
     component: LoginView,
     meta: { requiresAuth: false, layout: AuthLayout },
   },
+  
     {
     path: '/admin/carreras',
     name: 'AdminCarreras',
@@ -63,6 +64,16 @@ const routes: RouteRecordRaw[] = [
       requiresAuth: true,
       layout: AppLayout,
       roles: allRoles,
+    },
+  },
+    {
+    path: '/admin/roles',
+    name: 'AdminRoles',
+    component: () => import('@/views/admin/RolesView.vue'),
+    meta: {
+      requiresAuth: true,
+      layout: AppLayout,
+      roles: [UserRole.ADMIN],
     },
   },
   {
