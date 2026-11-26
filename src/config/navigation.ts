@@ -40,7 +40,7 @@ export const adminNavigation: NavigationItem[] = [
   {
     label: 'Carreras',
     route: '/admin/carreras',
-    enabled: false,
+    enabled: true,
   },
 
   //Gestion academica

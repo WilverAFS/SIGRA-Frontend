@@ -29,6 +29,16 @@ const routes: RouteRecordRaw[] = [
     component: LoginView,
     meta: { requiresAuth: false, layout: AuthLayout },
   },
+    {
+    path: '/admin/carreras',
+    name: 'AdminCarreras',
+    component: () => import('@/views/admin/CarrerasView.vue'),
+    meta: {
+      requiresAuth: true,
+      layout: AppLayout,
+      roles: [UserRole.ADMIN],
+    },
+  },
   {
     path: '/registro',
     name: 'Register',
