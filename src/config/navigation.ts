@@ -30,7 +30,7 @@ export const adminNavigation: NavigationItem[] = [
   {
     label: 'Usuarios',
     route: '/admin/usuarios',
-    enabled: false,
+    enabled: true,
   },
     {
     label: 'Roles',
