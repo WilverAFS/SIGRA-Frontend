@@ -5,6 +5,7 @@ import DataTable from '@/components/ui/DataTable.vue';
 import PaginationBar from '@/components/ui/PaginationBar.vue';
 import ConfirmModal from '@/components/ui/ConfirmModal.vue';
 import ErrorState from '@/components/ui/ErrorState.vue';
+import LoadingState from '@/components/ui/LoadingState.vue';
 import BaseInput from '@/components/forms/BaseInput.vue';
 import BaseSelect from '@/components/forms/BaseSelect.vue';
 import FormularioUsuario from '@/components/admin/FormularioUsuario.vue';
@@ -77,6 +78,15 @@ function nombreInstituto(id: unknown): string {
   return nombresInstitutos.value.get(Number(id)) ?? `Instituto ${id}`;
 }
 
+const nombresCarreras = computed(
+  () => new Map(carreras.value.map((carrera) => [carrera.id, carrera.name]))
+);
+
+function nombreCarrera(id: number | null): string {
+  if (id === null) return 'Sin carrera';
+  return nombresCarreras.value.get(id) ?? `Carrera ${id}`;
+}
+
 // Filtros
 const busqueda = ref('');
 const filtroRol = ref<string | number>('');
@@ -89,6 +99,11 @@ const usuarioEditando = ref<Usuario | null>(null);
 const guardando = ref(false);
 const errorGuardado = ref<unknown>(null);
 const mensajeErrorGuardado = ref<string | null>(null);
+
+// Detalle
+const usuarioDetalle = ref<Usuario | null>(null);
+const cargandoDetalle = ref(false);
+const errorDetalle = ref<string | null>(null);
 
 // Eliminar
 const modalEliminarAbierto = ref(false);
@@ -119,6 +134,26 @@ function limpiarMensajes() {
 
 function esMiCuenta(fila: Record<string, unknown>): boolean {
   return Number(fila.id) === authStore.user?.id;
+}
+
+function estadoUsuario(usuario: Usuario): string {
+  if (usuario.isActive) return 'Activo';
+  return usuario.role === 'DOCENTE' ? 'Pendiente de aprobación' : 'Inactivo';
+}
+
+// El contrato pide mostrar las fechas en la zona America/CDMX
+function formatearFecha(valor: string | null): string {
+  if (!valor) return 'Nunca';
+
+  const fecha = new Date(valor);
+
+  return Number.isNaN(fecha.getTime())
+    ? '—'
+    : fecha.toLocaleString('es-MX', {
+      dateStyle: 'long',
+      timeStyle: 'short',
+      timeZone: 'America/Mexico_City',
+    });
 }
 
 async function cargarCatalogos() {
@@ -187,8 +222,30 @@ function verPendientes() {
   aplicarFiltros();
 }
 
+function cerrarDetalle() {
+  usuarioDetalle.value = null;
+  errorDetalle.value = null;
+}
+
+async function verDetalle(fila: Record<string, unknown>) {
+  limpiarMensajes();
+  cargandoDetalle.value = true;
+  errorDetalle.value = null;
+  usuarioDetalle.value = null;
+
+  try {
+    const { data } = await usuariosService.obtener(Number(fila.id));
+    usuarioDetalle.value = data.data;
+  } catch (err) {
+    errorDetalle.value = obtenerMensaje(err, 'No se pudo cargar el detalle del usuario.');
+  } finally {
+    cargandoDetalle.value = false;
+  }
+}
+
 function abrirNuevo() {
   limpiarMensajes();
+  cerrarDetalle();
   usuarioEditando.value = null;
   errorGuardado.value = null;
   mensajeErrorGuardado.value = null;
@@ -197,6 +254,7 @@ function abrirNuevo() {
 
 function abrirEdicion(fila: Record<string, unknown>) {
   limpiarMensajes();
+  cerrarDetalle();
   usuarioEditando.value = fila as unknown as Usuario;
   errorGuardado.value = null;
   mensajeErrorGuardado.value = null;
@@ -242,7 +300,7 @@ async function guardar(payload: UsuarioNuevo | UsuarioCambios) {
   } catch (err) {
     errorGuardado.value = err;
 
-
+    // Los 422 se muestran junto a cada campo; el resto (por ejemplo 409), como mensaje general
     if (!isAxiosError(err) || err.response?.status !== 422) {
       mensajeErrorGuardado.value = obtenerMensaje(err, 'No se pudo guardar el usuario.');
     }
@@ -280,7 +338,7 @@ async function confirmarEliminar() {
     mensajeExito.value = 'Usuario eliminado correctamente.';
 
     if (usuarios.value.length === 1 && pagina.value > 1) {
-      pagina.value -= 1; 
+      pagina.value -= 1; // el watch recarga la lista
     } else {
       await cargar();
     }
@@ -440,6 +498,14 @@ onMounted(() => {
           <button
             type="button"
             class="boton-fila"
+            @click="verDetalle(row)"
+          >
+            Ver detalle
+          </button>
+
+          <button
+            type="button"
+            class="boton-fila"
             @click="abrirEdicion(row)"
           >
             Editar
@@ -472,6 +538,59 @@ onMounted(() => {
       />
     </template>
 
+    <LoadingState v-if="cargandoDetalle" />
+
+    <ErrorState
+      v-if="errorDetalle"
+      :message="errorDetalle"
+    />
+
+    <article
+      v-if="usuarioDetalle"
+      class="detalle"
+    >
+      <h2 class="detalle-titulo">
+        {{ usuarioDetalle.firstName }} {{ usuarioDetalle.lastName }}
+      </h2>
+
+      <dl class="detalle-datos">
+        <dt>Identificador institucional</dt>
+        <dd>{{ usuarioDetalle.institutionalId }}</dd>
+
+        <dt>Correo</dt>
+        <dd>{{ usuarioDetalle.email }}</dd>
+
+        <dt>Rol</dt>
+        <dd>{{ etiquetaRol(usuarioDetalle.role) }}</dd>
+
+        <dt>Instituto</dt>
+        <dd>{{ nombreInstituto(usuarioDetalle.instituteId) }}</dd>
+
+        <dt>Carrera</dt>
+        <dd>{{ nombreCarrera(usuarioDetalle.careerId) }}</dd>
+
+        <dt>Estado</dt>
+        <dd>{{ estadoUsuario(usuarioDetalle) }}</dd>
+
+        <dt>Último acceso</dt>
+        <dd>{{ formatearFecha(usuarioDetalle.lastLoginAt) }}</dd>
+
+        <dt>Creado</dt>
+        <dd>{{ formatearFecha(usuarioDetalle.createdAt) }}</dd>
+
+        <dt>Actualizado</dt>
+        <dd>{{ formatearFecha(usuarioDetalle.updatedAt) }}</dd>
+      </dl>
+
+      <button
+        type="button"
+        class="boton-fila"
+        @click="cerrarDetalle"
+      >
+        Cerrar
+      </button>
+    </article>
+
     <ConfirmModal
       v-model="modalEliminarAbierto"
       title="Eliminar usuario"
@@ -482,82 +601,3 @@ onMounted(() => {
     />
   </section>
 </template>
-
-<style scoped>
-.vista {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 72rem;
-  margin: 0 auto;
-  padding: 1.5rem 1rem;
-}
-
-.vista-encabezado {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.vista-titulo {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.filtros {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 1rem;
-}
-
-.filtros-acciones {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .5rem;
-}
-
-.boton-nuevo {
-  padding: .6rem 1.1rem;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: var(--color-primary);
-  color: #fff;
-  cursor: pointer;
-}
-
-.boton-nuevo:hover {
-  background: var(--color-primary-hover);
-}
-
-.aviso {
-  margin: 0;
-  padding: .75rem 1rem;
-  border-radius: var(--radius-sm);
-}
-
-.aviso-exito {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.aviso-error {
-  background: #fee2e2;
-  color: var(--color-danger);
-}
-
-.boton-fila {
-  padding: .35rem .75rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: #fff;
-  cursor: pointer;
-}
-
-.boton-fila-peligro {
-  border-color: var(--color-danger);
-  color: var(--color-danger);
-}
-</style>

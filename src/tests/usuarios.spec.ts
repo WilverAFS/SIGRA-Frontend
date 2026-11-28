@@ -21,6 +21,13 @@ describe('usuariosService', () => {
       params: { page: 2, role: 'DOCENTE', isActive: false },
     });
   });
+    test('obtener consulta GET /users/:id', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: { data: {} } });
+
+    await usuariosService.obtener(7);
+
+    expect(api.get).toHaveBeenCalledWith('/users/7');
+  });
 
   test('actualizar usa PATCH con solo los campos enviados', async () => {
     vi.mocked(api.patch).mockResolvedValue({ data: { data: {} } });
