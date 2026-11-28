@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 import FormularioInstituto
   from '@/components/admin/FormularioInstituto.vue';
+import { crearError422 } from '@/tests/helpers/error422';
 
 describe('FormularioInstituto', () => {
 
@@ -35,6 +36,15 @@ describe('FormularioInstituto', () => {
         isActive: true,
       },
     ]);
+  });
+
+  test('muestra junto al campo los errores 422 que devuelve la API', () => {
+    const wrapper = mount(FormularioInstituto, {
+      props: { errorApi: crearError422() },
+    });
+
+    expect(wrapper.text()).toContain('El código ya existe.');
+    expect(wrapper.text()).toContain('El nombre es obligatorio.');
   });
 
 });

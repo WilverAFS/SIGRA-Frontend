@@ -30,7 +30,12 @@ export const adminNavigation: NavigationItem[] = [
   {
     label: 'Usuarios',
     route: '/admin/usuarios',
-    enabled: false,
+    enabled: true,
+  },
+    {
+    label: 'Roles',
+    route: '/admin/roles',
+    enabled: true,
   },
   {
     label: 'Institutos',
@@ -40,7 +45,7 @@ export const adminNavigation: NavigationItem[] = [
   {
     label: 'Carreras',
     route: '/admin/carreras',
-    enabled: false,
+    enabled: true,
   },
 
   //Gestion academica

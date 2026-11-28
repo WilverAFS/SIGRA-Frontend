@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue';
-import BaseInput from '@/components/forms/BaseInput.vue';
-import { requerido, longitudMaxima } from '@/utils/validaciones';
 import { obtenerErroresPorCampo } from '@/utils/errores-api';
+import BaseInput from '@/components/forms/BaseInput.vue';
+import { requerido,longitudMaxima } from '@/utils/validaciones';
 import type { Instituto, InstitutoPayload } from '@/types/institutos';
 
 type Validador = (valor: string) => string | null;
